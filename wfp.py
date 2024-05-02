@@ -1,18 +1,15 @@
 #!/usr/bin/python
 """
-Generic Blob into HDX Pipeline:
+WFP Global Market Monitor -  HDX Pipeline:
 ------------
-
-TODO
-- Add summary about this dataset pipeline
-
 """
+
 import logging
-from datetime import datetime
+import os
 import pandas as pd
+from datetime import datetime
 from hdx.data.dataset import Dataset
 from slugify import slugify
-
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +25,21 @@ class WFPMarketMonitoring:
         self.created_date = None
 
     def get_data(self, state):
-        account = self.configuration["account"]
-        container = self.configuration["container"]
-        # TODO: move to get this key separately
-        key = self.configuration["key"]
-        blob = self.configuration["blob"]
-        url = self.configuration["url"]
+
         dataset_name = self.configuration["dataset_names"]["WFP-MARKET-MONITORING"]
+
+        try:
+            url = os.environ["BLOB_URL"],
+            account = os.environ["STORAGE_ACCOUNT"],
+            container = os.environ["CONTAINER"],
+            key = os.environ["KEY"],
+            blob = os.environ["BLOB"]
+        except Exception:
+            url = self.configuration["url"]
+            account = self.configuration["account"]
+            container = self.configuration["container"]
+            key = self.configuration["key"]
+            blob = self.configuration["blob"]
 
         downloaded_file = self.retriever.download_file(
             url=url,
@@ -43,7 +48,11 @@ class WFPMarketMonitoring:
             key=key,
             blob=blob)
 
-        data_df = pd.read_csv(downloaded_file, sep=",", escapechar='\\').replace('[“”]', '', regex=True)
+        if blob.endswith("csv"):
+            data_df = pd.read_csv(downloaded_file, sep=",", escapechar='\\').replace('[“”]', '', regex=True)
+        else:
+            # they might send an excel
+            data_df = pd.read_excel(downloaded_file).replace('[“”]', '', regex=True)
         self.dataset_data[dataset_name] = data_df.apply(lambda x: x.to_dict(), axis=1)
 
         # TODO

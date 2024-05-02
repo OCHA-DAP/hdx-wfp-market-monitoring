@@ -20,7 +20,7 @@ from datetime import datetime
 import hmac
 import hashlib
 import base64
-from genericpipeline import WFPMarketMonitoring
+from wfp import WFPMarketMonitoring
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +49,7 @@ class AzureBlobDownload(Download):
             key (str): Key to access the blob
             blob (str): Name of the blob to be downloaded. If empty, then it is assumed to download the whole container.
             **kwargs: See below
-            folder (str): Folder to download it to. Defaults to temporary folder.
-            filename (str): Filename to use for downloaded file. Defaults to deriving from url.
             path (str): Full path to use for downloaded file instead of folder and filename.
-            overwrite (bool): Whether to overwrite existing file. Defaults to False.
             keep (bool): Whether to keep already downloaded file. Defaults to False.
             post (bool): Whether to use POST instead of GET. Defaults to False.
             parameters (Dict): Parameters to pass. Defaults to None.
@@ -63,10 +60,7 @@ class AzureBlobDownload(Download):
         Returns:
             str: Path of downloaded file
         """
-        folder = kwargs.get("folder")
-        filename = kwargs.get("filename")
         path = kwargs.get("path")
-        overwrite = kwargs.get("overwrite", False)
         keep = kwargs.get("keep", False)
 
         request_time = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
@@ -149,13 +143,13 @@ def main(save: bool = False, use_saved: bool = False) -> None:
                     folder = info["folder"]
                     batch = info["batch"]
                     configuration = Configuration.read()
-                    iris = WFPMarketMonitoring(configuration, retriever, folder, errors)
-                    dataset_names = iris.get_data(state_dict)
+                    wfp = WFPMarketMonitoring(configuration, retriever, folder, errors)
+                    dataset_names = wfp.get_data(state_dict)
                     logger.info(f"Number of datasets to upload: {len(dataset_names)}")
 
                     for _, nextdict in progress_storing_folder(info, dataset_names, "name"):
                         dataset_name = nextdict["name"]
-                        dataset = iris.generate_dataset(dataset_name=dataset_name)
+                        dataset = wfp.generate_dataset(dataset_name=dataset_name)
                         if dataset:
                             dataset.update_from_yaml()
                             dataset["notes"] = dataset["notes"].replace(

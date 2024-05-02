@@ -1,5 +1,5 @@
 license_id: "cc-by-igo"
-methodology: "methodology TBD"
-dataset_source: "OCHA"
+methodology: "Food Basket Cost Changes \nThe impact calculation assumes that each food basket provides 2,100 kcal a day, and that the proportional caloric contribution is a proxy of the relative importance of the item in the food basket. It comprises the following calculations: a) the total food basket energy is multiplied by the proportion of each item to give the absolute energy (in kcal) each item contributes to the total energy intake [fn. 1]; b) each item’s absolute energy is divided by its caloric density [fn. 2] to give the weight of that item in the food basket; and c) each item’s weight is multiplied by its unit nominal/seasonally adjusted price to calculate the relative cost of each food basket item. Costs are only calculated for energy contributors for which prices are available. To avoid bias, the other energy contributors that fill the gap to 2,100kcal are ignored. Thus, the total cost of the known part of the food basket is the sum of the itemized commodity costs (step c). National level indicators report a simple average of subnational level data without weighting. \n[fn. 1] Caloric contributions are based on FAO 2005-2007 estimates.\n[fn. 2] Caloric densities are based on NutVal 4.0 estimates."
+dataset_source: "WFP - World Food Programme"
 package_creator: "isabelle-tot"
 private: False
