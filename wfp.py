@@ -7,7 +7,7 @@ WFP Global Market Monitor -  HDX Pipeline:
 import logging
 import os
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 from hdx.data.dataset import Dataset
 from slugify import slugify
 
@@ -30,10 +30,10 @@ class WFPMarketMonitoring:
         blob = self.configuration["blob"]
 
         try:
-            url = os.environ["BLOB_URL"],
-            account = os.environ["STORAGE_ACCOUNT"],
-            container = os.environ["CONTAINER"],
-            key = os.environ["KEY"],
+            url = os.environ["BLOB_URL"]
+            account = os.environ["STORAGE_ACCOUNT"]
+            container = os.environ["CONTAINER"]
+            key = os.environ["KEY"]
         except Exception:
             url = self.configuration["url"]
             account = self.configuration["account"]
@@ -54,13 +54,12 @@ class WFPMarketMonitoring:
             data_df = pd.read_excel(downloaded_file).replace('[“”]', '', regex=True)
         self.dataset_data[dataset_name] = data_df.apply(lambda x: x.to_dict(), axis=1)
 
-        # TODO
-        # add date logic
-
-        if self.dataset_data:
-            return [{"name": dataset_name}]
-        else:
-            return None
+        self.created_date = datetime.fromtimestamp((os.path.getctime(downloaded_file)), tz=timezone.utc)
+        if self.created_date > state.get(dataset_name, state["DEFAULT"]):
+            if self.dataset_data:
+                return [{"name": dataset_name}]
+            else:
+                return None
 
     def generate_dataset(self, dataset_name):
 
