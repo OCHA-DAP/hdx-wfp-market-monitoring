@@ -27,19 +27,18 @@ class WFPMarketMonitoring:
     def get_data(self, state):
 
         dataset_name = self.configuration["dataset_names"]["WFP-MARKET-MONITORING"]
+        blob = self.configuration["blob"]
 
         try:
             url = os.environ["BLOB_URL"],
             account = os.environ["STORAGE_ACCOUNT"],
             container = os.environ["CONTAINER"],
             key = os.environ["KEY"],
-            blob = os.environ["BLOB"]
         except Exception:
             url = self.configuration["url"]
             account = self.configuration["account"]
             container = self.configuration["container"]
             key = self.configuration["key"]
-            blob = self.configuration["blob"]
 
         downloaded_file = self.retriever.download_file(
             url=url,
