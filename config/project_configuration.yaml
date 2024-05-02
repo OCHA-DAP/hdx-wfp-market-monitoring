@@ -1,10 +1,11 @@
 # Collector specific configuration
 
+blob: "outgoing/BasketCostChange.xlsx"
+
 # TO run locally fill the values below
 url: "test"
 account: "storage-account"
 container: "container-name"
-blob: "filename.csv"
 key: ""
 
 dataset_names:
