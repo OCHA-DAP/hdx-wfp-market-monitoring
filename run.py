@@ -63,7 +63,11 @@ class AzureBlobDownload(Download):
         path = kwargs.get("path")
         keep = kwargs.get("keep", False)
 
+        url = url.split(".")
         request_time = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+        logger.info(f"Download request time:: {request_time}")
+        logger.info(f"File url path: {url}")
+
         api_version = '2018-03-28'
         parameters = {
             'verb': 'GET',
@@ -107,6 +111,7 @@ class AzureBlobDownload(Download):
         }
 
         url = ('https://' + account + '.blob.core.windows.net/' + container + '/' + blob)
+        logger.info(f"File url path: {url}")
 
         if keep and exists(url):
             print(f"The blob URL exists: {url}")
