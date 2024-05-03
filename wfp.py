@@ -44,7 +44,7 @@ class WFPMarketMonitoring:
 
         logger.info(f"File url path: {url}")
         url2 = urlsplit(unquote_plus(url))
-        logger.info(f"File url path: {url}")
+        logger.info(f"File url path: {url2}")
 
         downloaded_file = self.retriever.download_file(
             url=url,
