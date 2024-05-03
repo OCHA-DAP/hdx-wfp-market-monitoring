@@ -6,6 +6,8 @@ WFP Global Market Monitor -  HDX Pipeline:
 
 import logging
 import os
+from urllib.parse import urlsplit, unquote_plus
+
 import pandas as pd
 from datetime import datetime, timezone
 from hdx.data.dataset import Dataset
@@ -39,6 +41,10 @@ class WFPMarketMonitoring:
             account = self.configuration["account"]
             container = self.configuration["container"]
             key = self.configuration["key"]
+
+        logger.info(f"File url path: {url}")
+        url2 = urlsplit(unquote_plus(url))
+        logger.info(f"File url path: {url}")
 
         downloaded_file = self.retriever.download_file(
             url=url,
