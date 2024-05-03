@@ -7,6 +7,7 @@ import logging
 from copy import deepcopy
 from os.path import expanduser, join, exists
 from typing import Any
+from urllib.parse import urlsplit, unquote_plus
 
 from hdx.api.configuration import Configuration
 from hdx.facades.infer_arguments import facade
@@ -149,6 +150,12 @@ def main(save: bool = False, use_saved: bool = False) -> None:
                     batch = info["batch"]
                     configuration = Configuration.read()
                     wfp = WFPMarketMonitoring(configuration, retriever, folder, errors)
+
+                    url = wfp.configuration["url"]
+                    url2 = urlsplit(unquote_plus(url))
+                    logger.info(f"url1: {url}")
+                    logger.info(f"url2: {url2}")
+
                     dataset_names = wfp.get_data(state_dict)
                     logger.info(f"Number of datasets to upload: {len(dataset_names)}")
 
