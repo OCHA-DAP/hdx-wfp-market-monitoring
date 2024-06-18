@@ -59,6 +59,8 @@ class WFPMarketMonitoring:
             # they might send an excel
             data_df = pd.read_excel(downloaded_file).replace('[“”]', '', regex=True)
 
+        data_df = data_df.rename(columns=lambda x: x.replace("MMFPSN", ""))
+
         hxl_tags = ["#date",
                     "#country+name",
                     "#indicator+foodbasket+version",
