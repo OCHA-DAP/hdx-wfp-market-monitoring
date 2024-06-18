@@ -1,6 +1,6 @@
 # Collector specific configuration
 
-blob: "BasketCostChange.xlsx"
+blob: "BasketCostChange.csv"
 
 # TO run locally fill the values below
 url: "test"
