@@ -58,6 +58,23 @@ class WFPMarketMonitoring:
         else:
             # they might send an excel
             data_df = pd.read_excel(downloaded_file).replace('[“”]', '', regex=True)
+
+        hxl_tags = ["#date",
+                    "#country+name",
+                    "#indicator+foodbasket+version",
+                    "#indicator+foodbasket+level",
+                    "#indicator+foodbasket+quarterly+change+num",
+                    "#indicator+foodbasket+quarterly+change+code",
+                    "#indicator+foodbasket+quarterly+baseline+change+num",
+                    "#indicator+foodbasket+quarterly+baseline+change+code",
+                    "#indicator+foodbasket+monthly+change+num",
+                    "#indicator+foodbasket+monthly+change+code",
+                    "#indicator+foodbasket+monthly+baseline+change+num",
+                    "#indicator+foodbasket+monthly+baseline+change+code",
+                    "#indicator+foodbasket+baseline+years+num"]
+        data_df.loc[-1] = hxl_tags
+        data_df.index = data_df.index + 1
+        data_df = data_df.sort_index()
         self.dataset_data[dataset_name] = data_df.apply(lambda x: x.to_dict(), axis=1)
 
         self.created_date = datetime.fromtimestamp((os.path.getctime(downloaded_file)), tz=timezone.utc)
