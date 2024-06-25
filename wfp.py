@@ -62,22 +62,38 @@ class WFPMarketMonitoring:
         data_df = data_df.rename(columns=lambda x: x.replace("MMFPSN", ""))
 
         hxl_tags = ["#date",
-                    "#country+name",
                     "#indicator+foodbasket+version",
-                    "#indicator+foodbasket+level",
+                    "#meta+frequency",
+                    "#country+code",
+                    "#country+name",
+                    "#adm1+name",
+                    "#meta+level",
+                    "#indicator+foodbasket+type",
+                    "#indicator+foodbasket+price+type",
+                    "#indicator+foodbasket+calories",
+                    "#indicator+foodbasket+quarterly+change+nsa+num",
+                    "#indicator+foodbasket+monthly+change+nsa+num",
+                    "#indicator+foodbasket+quarterly+change+sa+num",
+                    "#indicator+foodbasket+monthly+change+sa+num",
+                    "#indicator+foodbasket+quarterly+change+yoy+num",
+                    "#indicator+foodbasket+monthly+change+yoy+num",
+                    "#indicator+foodbasket+quarterly+trend",
+                    "#indicator+foodbasket+monthly+trend",
+                    "#indicator+foodbasket+quarterly+share+num",
                     "#indicator+foodbasket+quarterly+change+num",
                     "#indicator+foodbasket+quarterly+change+code",
-                    "#indicator+foodbasket+quarterly+baseline+change+num",
-                    "#indicator+foodbasket+quarterly+baseline+change+code",
                     "#indicator+foodbasket+monthly+change+num",
                     "#indicator+foodbasket+monthly+change+code",
-                    "#indicator+foodbasket+monthly+baseline+change+num",
-                    "#indicator+foodbasket+monthly+baseline+change+code",
-                    "#indicator+foodbasket+baseline+years+num"]
+                    "#date+modified"]
         data_df.loc[-1] = hxl_tags
         data_df.index = data_df.index + 1
         data_df = data_df.sort_index()
-        self.dataset_data[dataset_name] = data_df.apply(lambda x: x.to_dict(), axis=1)
+
+        mask = data_df.DataLevel.str.contains("National")
+        data_df_national = data_df[mask].reset_index(drop=True)
+        data_df_subnational = data_df[~mask].reset_index(drop=True)
+        self.dataset_data[dataset_name] = [data_df_national.apply(lambda x: x.to_dict(), axis=1),
+                                           data_df_subnational.apply(lambda x: x.to_dict(), axis=1)]
 
         self.created_date = datetime.fromtimestamp((os.path.getctime(downloaded_file)), tz=timezone.utc)
         if self.created_date > state.get(dataset_name, state["DEFAULT"]):
@@ -93,7 +109,7 @@ class WFPMarketMonitoring:
         title = self.configuration["title"]
         update_frequency = self.configuration["update_frequency"]
         dataset = Dataset({"name": slugify(name), "title": title})
-        rows = self.dataset_data[dataset_name]
+        rows = self.dataset_data[dataset_name][0]
         dataset.set_maintainer(self.configuration["maintainer_id"])
         dataset.set_organization(self.configuration["organization_id"])
         dataset.set_expected_update_frequency(update_frequency)
@@ -131,6 +147,33 @@ class WFPMarketMonitoring:
         dataset.generate_resource_from_rows(
             self.folder,
             filename,
+            rows,
+            resource_data,
+            list(rows[0].keys()),
+            encoding='utf-8'
+        )
+
+        second_filename = f"{filename}_subnational.csv"
+        resource_data = {"name": second_filename,
+                         "description": self.configuration["description_subnational_file"]}
+        rows = self.dataset_data[dataset_name][1]
+        headers = rows[0].keys()
+        date_headers = [h for h in headers if "date" in h.lower() and type(rows[0][h]) == int]
+        for row in rows:
+            for date_header in date_headers:
+                row_date = row[date_header]
+                if not row_date:
+                    continue
+                if len(str(row_date)) > 9:
+                    row_date = row_date / 1000
+                row_date = datetime.utcfromtimestamp(row_date)
+                row_date = row_date.strftime("%Y-%m-%d")
+                row[date_header] = row_date
+
+        rows
+        dataset.generate_resource_from_rows(
+            self.folder,
+            second_filename,
             rows,
             resource_data,
             list(rows[0].keys()),
