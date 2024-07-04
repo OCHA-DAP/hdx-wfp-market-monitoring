@@ -25,6 +25,8 @@ class WFPMarketMonitoring:
         self.dataset_data = {}
         self.errors = errors
         self.created_date = None
+        self.start_date = None
+        self.latest_date = None
 
     def get_data(self, state):
 
@@ -54,12 +56,16 @@ class WFPMarketMonitoring:
             blob=blob)
 
         if blob.endswith("csv"):
-            data_df = pd.read_csv(downloaded_file, sep=",", escapechar='\\').replace('[“”]', '', regex=True)
+            data_df = pd.read_csv(downloaded_file, sep=",", escapechar='\\', keep_default_na=False).replace('[“”]', '', regex=True)
         else:
             # they might send an excel
             data_df = pd.read_excel(downloaded_file).replace('[“”]', '', regex=True)
 
         data_df = data_df.rename(columns=lambda x: x.replace("MMFPSN", ""))
+
+        # Find the minimum and maximum dates
+        self.start_date = data_df['LastModifyDate'].min()
+        self.latest_date = data_df['LastModifyDate'].max()
 
         hxl_tags = ["#date",
                     "#indicator+foodbasket+version",
@@ -91,6 +97,9 @@ class WFPMarketMonitoring:
 
         mask = data_df.DataLevel.str.contains("National")
         data_df_national = data_df[mask].reset_index(drop=True)
+        data_df_national.loc[-1] = hxl_tags
+        data_df_national.index = data_df_national.index + 1
+        data_df_national = data_df_national.sort_index()
         data_df_subnational = data_df[~mask].reset_index(drop=True)
         self.dataset_data[dataset_name] = [data_df_national.apply(lambda x: x.to_dict(), axis=1),
                                            data_df_subnational.apply(lambda x: x.to_dict(), axis=1)]
@@ -123,12 +132,12 @@ class WFPMarketMonitoring:
         dataset.add_tags(tags)
 
         # Setting time period
-        start_date = self.configuration["start_date"]
+        start_date = self.start_date
         ongoing = False
         if not start_date:
             logger.error(f"Start date missing for {dataset_name}")
             return None, None
-        dataset.set_time_period(start_date, self.created_date, ongoing)
+        dataset.set_time_period(start_date, self.latest_date, ongoing)
 
         headers = rows[0].keys()
         date_headers = [h for h in headers if "date" in h.lower() and type(rows[0][h]) == int]
@@ -153,7 +162,7 @@ class WFPMarketMonitoring:
             encoding='utf-8'
         )
 
-        second_filename = f"{filename}_subnational.csv"
+        second_filename = f"{dataset_name.lower()}_subnational.csv"
         resource_data = {"name": second_filename,
                          "description": self.configuration["description_subnational_file"]}
         rows = self.dataset_data[dataset_name][1]

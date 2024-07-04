@@ -15,10 +15,10 @@ allowed_tags:
   - "markets"
 
 # Metadata
-start_date: "2020-10-01"
 title: "WFP Global Market Monitor"
 update_frequency: "every two weeks"
 maintainer_id: "2f9fd160-2a16-49c0-89d6-0bc3230599bf"
 organization_id: "3ecac442-7fed-448d-8f78-b385ef6f84e7"
 notes: "The [WFP Global Market Monitor](https://www.wfp.org/publications/market-monitor) monitors food prices in markets across a range of countries globally. The resources are updated every other week, with country data updating based on when data is received from country offices."
 description: "Dataset of the change in food basket prices at the country level, updated every other week. Markets are monitored across a range of countries globally, and percent changes in the cost of food baskets between time periods with available data are classified as negative (<0%), normal (0-3%), moderate (3-10%), high (10-25%), and severe (>25%). "
+description_subnational_file: "Subnational view of the global dataset of the change in food basket prices at the country level, updated every other week."
