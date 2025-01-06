@@ -123,7 +123,6 @@ class WFPMarketMonitoring:
         dataset.set_organization(self.configuration["organization_id"])
         dataset.set_expected_update_frequency(update_frequency)
         dataset.set_subnational(False)
-        dataset.add_other_location("world")
         dataset["notes"] = self.configuration["notes"]
         filename = f"{dataset_name.lower()}.csv"
         resource_data = {"name": filename,
@@ -141,7 +140,15 @@ class WFPMarketMonitoring:
 
         headers = rows[0].keys()
         date_headers = [h for h in headers if "date" in h.lower() and type(rows[0][h]) == int]
+        countrynames = []
         for row in rows:
+            if row['CountryName'] != "#country+name":
+                if row['CountryName'] == "Turkey":
+                    countrynames.append("Türkiye")
+                elif row['CountryName'] == "Cote d'Ivoire":
+                    countrynames.append("Côte d'Ivoire")
+                else:
+                    countrynames.append(row['CountryName'])
             for date_header in date_headers:
                 row_date = row[date_header]
                 if not row_date:
@@ -151,6 +158,9 @@ class WFPMarketMonitoring:
                 row_date = datetime.utcfromtimestamp(row_date)
                 row_date = row_date.strftime("%Y-%m-%d")
                 row[date_header] = row_date
+
+        for country in set(countrynames):
+            dataset.add_other_location(country, exact=False)
 
         rows
         dataset.generate_resource_from_rows(
