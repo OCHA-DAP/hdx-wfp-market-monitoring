@@ -112,8 +112,8 @@ class WFPMarketMonitoring:
             return None, None
         dataset.set_time_period(start_date, self.latest_date, ongoing)
 
-        headers = rows[0].keys()
-        date_headers = [h for h in headers if "date" in h.lower() and type(rows[0][h]) == int]
+        headers = rows.iloc[0].keys()
+        date_headers = [h for h in headers if "date" in h.lower() and type(rows.iloc[0][h]) == int]
         countrynames = []
         for row in rows:
             if row['CountryName'] != "#country+name":
@@ -142,7 +142,7 @@ class WFPMarketMonitoring:
             filename,
             rows,
             resource_data,
-            list(rows[0].keys()),
+            list(rows.iloc[0].keys()),
             encoding='utf-8'
         )
 
@@ -150,8 +150,8 @@ class WFPMarketMonitoring:
         resource_data = {"name": second_filename,
                          "description": self.configuration["description_subnational_file"]}
         rows = self.dataset_data[dataset_name][1]
-        headers = rows[0].keys()
-        date_headers = [h for h in headers if "date" in h.lower() and type(rows[0][h]) == int]
+        headers = rows.iloc[0].keys()
+        date_headers = [h for h in headers if "date" in h.lower() and type(rows.iloc[0][h]) == int]
         for row in rows:
             for date_header in date_headers:
                 row_date = row[date_header]
@@ -169,7 +169,7 @@ class WFPMarketMonitoring:
             second_filename,
             rows,
             resource_data,
-            list(rows[0].keys()),
+            list(rows.iloc[0].keys()),
             encoding='utf-8'
         )
 
