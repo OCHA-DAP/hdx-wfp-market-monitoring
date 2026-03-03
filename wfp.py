@@ -67,37 +67,11 @@ class WFPMarketMonitoring:
         self.start_date = data_df['LastModifyDate'].min()
         self.latest_date = data_df['LastModifyDate'].max()
 
-        hxl_tags = ["#date",
-                    "#indicator+foodbasket+version",
-                    "#meta+frequency",
-                    "#country+code",
-                    "#country+name",
-                    "#adm1+name",
-                    "#meta+level",
-                    "#indicator+foodbasket+type",
-                    "#indicator+foodbasket+price+type",
-                    "#indicator+foodbasket+calories",
-                    "#indicator+foodbasket+quarterly+change+nsa+num",
-                    "#indicator+foodbasket+monthly+change+nsa+num",
-                    "#indicator+foodbasket+quarterly+change+sa+num",
-                    "#indicator+foodbasket+monthly+change+sa+num",
-                    "#indicator+foodbasket+quarterly+change+yoy+num",
-                    "#indicator+foodbasket+monthly+change+yoy+num",
-                    "#indicator+foodbasket+quarterly+trend",
-                    "#indicator+foodbasket+monthly+trend",
-                    "#indicator+foodbasket+quarterly+share+num",
-                    "#indicator+foodbasket+quarterly+change+num",
-                    "#indicator+foodbasket+quarterly+change+code",
-                    "#indicator+foodbasket+monthly+change+num",
-                    "#indicator+foodbasket+monthly+change+code",
-                    "#date+modified"]
-        data_df.loc[-1] = hxl_tags
         data_df.index = data_df.index + 1
         data_df = data_df.sort_index()
 
         mask = data_df.DataLevel.str.contains("National")
         data_df_national = data_df[mask].reset_index(drop=True)
-        data_df_national.loc[-1] = hxl_tags
         data_df_national.index = data_df_national.index + 1
         data_df_national = data_df_national.sort_index()
         data_df_subnational = data_df[~mask].reset_index(drop=True)
@@ -163,7 +137,7 @@ class WFPMarketMonitoring:
             dataset.add_other_location(country, exact=False)
 
         rows
-        dataset.generate_resource_from_rows(
+        dataset.generate_resource(
             self.folder,
             filename,
             rows,
@@ -190,7 +164,7 @@ class WFPMarketMonitoring:
                 row[date_header] = row_date
 
         rows
-        dataset.generate_resource_from_rows(
+        dataset.generate_resource(
             self.folder,
             second_filename,
             rows,
